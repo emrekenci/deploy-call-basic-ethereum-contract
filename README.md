@@ -2,7 +2,7 @@
 A simple nodejs app showing how to compile, deploy and call a simple ethereum contract.
 
 ## Gas & gas limits
-The contract deployment and contract messaging code (setValue method) assumes the transaction will be valid on
+The contract deployment and contract messaging code (setValue method) assumes the transaction will be valid(mined) on
 the blockchain without spending gas.
 
 We are using a deployment of Parity's Aura PoA blockchain here. Specifically, we're using Azure PoA Ethereum Consortium.
