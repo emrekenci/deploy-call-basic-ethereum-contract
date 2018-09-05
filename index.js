@@ -12,6 +12,9 @@ var accountAddress = account.getAddressString()
 var privateKey = account.getPrivateKey();
 
 // The address where you can find the contract at on the blockchain.
+// This is an output of the contract deployment on the blockchain. Once you deploy your contract,
+// you will get a transaction hash. Check the details of that transaction using the /getTx method below.
+// The contract address will be the "creates" value in the result.
 var contractAddress = "0xa13270efed99e6f01878f99d3ba142e465214097";
 
 // Our miner node's RPC endpoint
@@ -24,11 +27,13 @@ app.listen(port, () => {
     console.log("App is starting. Listening on port: " + port);
 });
 
+// Get the details of a transaction
 app.get('/getTx', async (req, res) => {
     var tx = await web3.eth.getTransaction(req.query.txHash);
     return res.send(tx);
 })
 
+// Depoy the contract defined in ./MyContract.sol
 app.get('/deploy', async (req, res) => {
     try {
         var source = fs.readFileSync("./MyContract.sol", 'utf8');
@@ -36,7 +41,8 @@ app.get('/deploy', async (req, res) => {
         var bytecode = compiledContract.contracts[':MyContract'].bytecode;
         var data = '0x' + bytecode;
 
-        // Get the current nonce of the account
+        // Get the current nonce of the account. We are not using the transaction count.
+        // It's just a way to get the nonce so ignore that.
         web3.eth.getTransactionCount(accountAddress, function (err, nonce) {
             var rawTx = {
                 nonce: nonce,
@@ -65,6 +71,8 @@ app.get('/deploy', async (req, res) => {
     }
 });
 
+// Read data from a contract on the blockchain
+// Call the getValue method in the contract.
 app.get('/getValue', async (req, res) => {
     var source = fs.readFileSync("./MyContract.sol", 'utf8');
     var compiledContract = solc.compile(source, 1);
@@ -75,6 +83,10 @@ app.get('/getValue', async (req, res) => {
     return res.send(currentValue);
 });
 
+// Write data to a contract on the blockchain.
+// Call the setValue method in the contract.
+// "changing" a value stored on the blockchain requires sending a transaction.
+// This method returns the hash of the transaction we send.
 app.get('/setValue', async (req, res) => {
     try {
         var source = fs.readFileSync("./MyContract.sol", 'utf8');
